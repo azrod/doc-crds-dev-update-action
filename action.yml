@@ -1,11 +1,7 @@
-name: 'Go proxy warming'
-description: 'Pull the new release of a module to the Go proxy cache'
-author: 'Andrey Slotin'
+name: 'doc.crds.dev warming'
+description: 'Pull the new release of a custom resource definition from doc.crds.dev'
+author: 'Mickael Stanislas (azrod)'
 inputs:
-  goproxy:
-    description: 'URL of the proxy to be passed to `go get` as GOPROXY='
-    required: false
-    default: 'https://proxy.golang.org'
   import_path:
     description: 'Package import path. If not set, github.com/<user>/<repo> is used as a default'
     required: false

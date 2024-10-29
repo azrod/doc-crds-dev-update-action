@@ -18,10 +18,4 @@ if [ $((10#${MAJOR_VERSION})) -gt 1 ]; then
   PACKAGE="$PACKAGE/v$MAJOR_VERSION"
 fi
 
-export GO111MODULE=on
-export GOPROXY="$INPUT_GOPROXY"
-
-mkdir dummy
-cd dummy
-go mod init dummy
-go get "$PACKAGE@$VERSION"
+curl -sSfL "https://doc.crds.dev/$PACKAGE@$VERSION"

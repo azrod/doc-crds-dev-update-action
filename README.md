@@ -1,18 +1,16 @@
-Go proxy warming action
+doc.crds.dev warming action
 =======================
 
-This action ensures that a newly released version of a Go module is pulled to the specified proxy.
+This GitHub action is based on the great work of [Andrew Slotin](https://github.com/andrewslotin) and his [go-proxy-pull-action](https://github.com/andrewslotin/go-proxy-pull-action) action.
 
-Each time there is a new tag created in repository with a name that looks like a [semantic version](https://blog.golang.org/publishing-go-modules), the action gets triggered, pulling this version with `go get` via the
-configured proxy (https://proxy.golang.org by default).
+This action ensures that a newly released version of a custom resource is discovered by the [doc.crds.dev](https://doc.crds.dev) service.
 
-The action also recognizes the tags that version submodules stored within the same repository,
-e.g. `contrib/awesomity/v1.2.3`.
+Each time there is a new tag created in repository with a name that looks like a [semantic version](https://blog.golang.org/publishing-go-modules), the action will pull the new version of the custom resource module and request the [doc.crds.dev](https://doc.crds.dev) to warm up the cache for the new version.
 
 Usage
 -----
 
-To renew the documentation on [pkg.go.dev](https://pkg.go.dev) create a new workflow file with following context:
+To renew the documentation on [doc.crds.dev](https://doc.crds.dev) create a new workflow file with following context:
 
 ```yaml
 on:
@@ -21,7 +19,7 @@ on:
       - created
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
-      - '**/v[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   build:
@@ -29,22 +27,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Pull new module version
-      uses: andrewslotin/go-proxy-pull-action@master
+      uses: azrod/doc-crds-dev-update-action@master
 ```
 
-This will trigger the action each time whenever a new release is published for a tag that looks either like `vX.Y.Z` or
-`submodule/path/vX.Y.Z`.
-
-### Custom proxy
-
-The action accepts `gopath` parameter to specify the URL of a self-hosted or any other Go proxy instead of https://proxy.golang.org. For example to make sure that [GoCenter](https://gocenter.io) has the latest version of your module provide `https://gocenter.io` as a value for `goproxy` parameter:
-
-```yaml
-- name: Pull new module version
-  uses: andrewslotin/go-proxy-pull-action@master
-  with:
-    goproxy: https://gocenter.io
-```
+This will trigger the action each time whenever a new release is published for a tag that looks either like `vX.Y.Z` or `X.Y.Z`.
 
 ### Custom import path
 
@@ -60,14 +46,9 @@ In case your module uses custom import path, such as `example.com/myproject`, an
 Why?
 ----
 
-Although the Go module proxies are capable of pulling the missing versions on-demand, there are cases when
-this needs to be done before anyone has requested a new version via `go get` through this proxy. An example
-would be updating the `pkg.go.dev` documentation of your library upon release.
-
-Currently the [pkg.go.dev](https://pkg.go.dev), unlike [godoc.org](https://godoc.org) does not track new
-module versions, displaying the last one it knows about as the latest one. The proposed workaround
-[suggests](https://github.com/golang/go/issues/37005#issuecomment-599541549) pulling the new version via
-`go get` after it has been released, which is now automated with this GitHub action.
+Although the `doc.crds.dev` are capable of pulling the missing versions on-demand, there are cases when
+this needs to be done before anyone has requested a new version via a http request to the service.
+An example would be updating the `doc.crds.dev` documentation of your library upon release.
 
 License
 -------
